@@ -1,0 +1,21 @@
+version: '3'
+services:
+  www-test:
+    image: super_admin:prd
+    ports:
+      - 8320:8320
+    volumes:
+      - /data/super_admin/logs:/logs
+      - /data/super_admin/staticfiles:/u01/main/super_admin/staticfiles
+#      - /data/super_admin/media:/u01/main/super_admin/media
+    command: /start
+    env_file:
+      - ./prd.env
+    deploy:
+      mode: replicated
+      replicas: 1
+      update_config:
+        parallelism: 1
+        delay: 15s
+      restart_policy:
+        condition: on-failure

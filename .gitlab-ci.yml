@@ -1,0 +1,63 @@
+stages:
+    - build
+    - test
+    - prd
+
+variables:
+  DOCKER_FILE: compose/production/django/Dockerfile
+  PROD_COMPOSE_FILE: production.yml
+  COMPOSE_FILE: dev.yml
+  PRD_COMPOSE_FILE: prd.yml
+  APP_NAME: super_admin
+
+
+build_develop_image:
+    stage: build
+    script:
+        - docker build --rm -f $DOCKER_FILE -t $APP_NAME:develop .
+    only:
+        - develop
+    tags:
+        - dev
+
+test:
+    stage: test
+    script:
+        - sudo mkdir -p /u01/$APP_NAME
+        - sudo mkdir -p /data/$APP_NAME/logs
+        - sudo cp -rf .envs/test.env /u01/$APP_NAME/
+        - sudo cp -rf .envs/local.env /u01/$APP_NAME/
+        - sudo cp -f ./$COMPOSE_FILE /u01/$APP_NAME/
+        - sudo cd /u01/$APP_NAME && sudo docker-compose -f /u01/$APP_NAME/$COMPOSE_FILE up -d --force-recreate
+
+    only:
+        - develop
+    tags:
+        - dev
+
+build_master_image:
+    stage: build
+    script:
+        - sudo docker build --rm -f $DOCKER_FILE -t $APP_NAME:prd .
+    only:
+        - master
+    tags:
+        - super_admin_prd
+
+prd:
+    stage: prd
+    script:
+        - sudo mkdir -p /u01/$APP_NAME
+        - sudo mkdir -p /data/$APP_NAME/logs
+        - sudo mkdir -p /data/$APP_NAME/staticfiles
+        - sudo cp -rf .envs/prd.env /u01/$APP_NAME/
+        - sudo cp -f ./$PRD_COMPOSE_FILE /u01/$APP_NAME/
+        - sudo cd /u01/$APP_NAME && sudo docker-compose -f /u01/$APP_NAME/$PRD_COMPOSE_FILE up -d --force-recreate
+
+    only:
+        - master
+    tags:
+        - super_admin_prd
+
+
+

@@ -1,0 +1,9 @@
+#!/bin/bash
+
+set -o errexit
+set -o pipefail
+set -o nounset
+
+
+python manage.py migrate
+gunicorn -c config/gunicorn.py config.wsgi --chdir=/u01/main
