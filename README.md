@@ -1,6 +1,6 @@
 # Super Admin
 
-本项目可以通过配置多个数据库, 生成对应的models和admin。
+本项目可以通过配置多个数据库, 自动生成对应的apps和models， 还可以通过填写admin表单生成对应数据的admin，以及权限控制。
 
 
 ## Settings
